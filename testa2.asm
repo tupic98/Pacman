@@ -8,6 +8,11 @@ loopazo:
             call delay
             cmp bp, 00H
             jne loopazo
+
+int 20h
+
+
+
 cuadro_mayor:
             mov cx, 50d ;columna
             mov dx, 35d ;fila    
@@ -654,7 +659,7 @@ elegir_lado:
         je moverN_derecha;Se compara si es d y si lo es se mueve la nave a la derecha
         ;cmp bl, "a"
         ;je moverN_izquierda;Se compara si es a y si lo es se mueve la nave a la izquierda
-        ;jne mover_nave;Si no es ninguna de las 3 se llama a la funcion de mover nave de nuevo
+        ;jne mover_pacman;Si no es ninguna de las 3 se llama a la funcion de mover nave de nuevo
         ret
 moverN_derecha: 
         call clear_pacman
@@ -672,37 +677,28 @@ moverN_derecha:
         int 10h
         mov [0512H], dh; guardando en una dirección de memoria posición en y del pacman
         mov [0514H], dl; guardando en una dirección de memoria posición en x del pacman
-        call perimetro
+        
         mov al, "O"
         call dibujar_pacman
+        ;call mover_pacman
         ret
-moverN_izquierda: 
-        call clear_pacman
-        mov bl, [0514H];obteniendo ultima posicion en x del pacman
-        sub bl, 2d
-        cmp bl, 22d
-        ja pintarMenos
-        mov bl, 22d
-        pintarMenos:
-        mov [0514h], bl
-        mov ah, 02h
-        mov dh, 25d
-        mov dl, bl
-        mov bh, 00h
-        int 10h
-        mov [0512H], dh; guardando en una dirección de memoria posición en y del pacman
-        mov [0514H], dl; guardando en una dirección de memoria posición en x del pacman
-        mov al, "A"
-        call dibujar_pacman
-        ret
+
 clear_pacman:
+        mov si, [514h]
+        mov di, [512h]
+        add si, 1d
+        add di, 1d
+
+        mov [520h], si
+        mov [522h], di
+
         mov ah,06H; Funcion scroll up
         mov al,00H; Clear
         mov bh,00H; Atributo
-        mov cl,00H; Columna inicial
-        mov ch,00d; Fila inicial
-        mov dl,79d; Columna final
-        mov dh,29d; Fila final
+        mov cl,[514h]; Columna inicial
+        mov ch,[512h]; Fila inicial
+        mov dl,[520h]; Columna final
+        mov dh,[522h]; Fila final
         int 10h
         ret
 esperar:
